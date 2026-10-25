@@ -3,7 +3,7 @@
 > Snap a photo of any confusing official document. Get a plain-language explanation in **Tamil, Hindi or English**, a clear action list, an urgency badge, and a **voice readout**.
 
 **Live demo:** https://puriyum.onrender.com
-**Demo video:** `<ADD VIDEO LINK>`
+**Demo video:** https://www.loom.com/share/84194b04677249228db52a509c5a6743
 **Team:** CrazyCoders · AI-Powered Website Building Hackathon '26 (Education Algorithm)
 **Theme:** Beyond the Screen — Build for a Smarter, More Inclusive Future
 
