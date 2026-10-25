@@ -77,7 +77,29 @@ MEDICAL REPORTS — SAFETY (STRICT):
 
 LEGAL/FINANCIAL REPORTS — SAFETY:
 - Do NOT give legal advice. Explain only what the document says.
-- Action = "show this document to a legal advisor / the relevant office" (in {lang})."""
+- Action = "show this document to a legal advisor / the relevant office" (in {lang}).
+- Always fill risk_flags and contact when printed on the document. Do not skip them."""
+
+from datetime import date
+
+def fix_urgency(d):
+    if not d.get("readable"):
+        return d
+    u = d.get("urgency", "low")
+    if d.get("risk_flags") and u == "low":
+        u = "medium"
+    dl = d.get("deadline")
+    if dl:
+        try:
+            days = (date.fromisoformat(dl) - date.today()).days
+            if days <= 7:
+                u = "high"
+            elif days <= 30 and u == "low":
+                u = "medium"
+        except ValueError:
+            pass
+    d["urgency"] = u
+    return d
 
 @app.post("/api/explain")
 async def explain(file: UploadFile = File(...), lang: str = Form("English")):
@@ -99,7 +121,7 @@ async def explain(file: UploadFile = File(...), lang: str = Form("English")):
                     ),
                 )
                 if res.parsed:
-                    return res.parsed
+                    return fix_urgency(res.parsed.model_dump())
             except Exception as e:
                 last_err = e
                 print(f"MODEL FAIL {m}: {e}")
