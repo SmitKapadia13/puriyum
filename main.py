@@ -64,7 +64,7 @@ FIELD RULES:
 - summary: 2 sentences in {lang}. What is this document, and why does it matter to the person.
 - actions: ordered steps the person must do, in {lang}. Include by_when as free text in {lang} if the document states a time frame (e.g., "immediately", "within 30 days"). by_when is display text, NOT a date.
 - deadline: YYYY-MM-DD only if an exact calendar date is explicitly printed on the document. Otherwise null. Never compute or infer a deadline.
-- urgency: high = deadline within 7 days OR penalty/legal/medical risk. medium = within 30 days. low = informational.
+- urgency: high = payment deadline within 7 days, OR threat of disconnection, penalty, legal action, or abnormal medical values. medium = deadline within 30 days. low = purely informational, no deadline, no threat. If the document threatens disconnection, penalty, or legal action: urgency=high. Never low for those.
 - risk_flags: list penalties, fees, legal threats, or abnormal medical values in {lang}. Quote the relevant value from the document (keep original digits and units). Translate the surrounding description into {lang}.
 - contact: extract only if printed on the document. name in {lang}, phone/address as printed.
 

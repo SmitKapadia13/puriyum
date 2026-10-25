@@ -1,82 +1,837 @@
-<!-- <!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <title>Puriyum MVP</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puriyum — Understand Any Official Document</title>
+    <meta name="description"
+        content="Snap a photo of any confusing official document — bill, notice, medical report. Get a simple explanation in Tamil, Hindi, or English with action steps and voice readout.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans', 'Noto Sans Tamil', 'Noto Sans Devanagari', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+                            400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e',
+                            800: '#115e59', 900: '#134e4a', 950: '#042f2e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 3.75rem;
+        }
+
+        body {
+            font-size: 1.25rem;
+            line-height: 1.6;
+        }
+
+        :focus-visible {
+            outline: 3px solid #0d9488;
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            padding: 0.75rem 1.5rem;
+            background: #0f766e;
+            color: white;
+            font-weight: 700;
+            border-radius: 0 0 0.75rem 0.75rem;
+            text-decoration: none;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            border: 3px solid #ccfbf1;
+            border-top-color: #0d9488;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-enter {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Drop zone drag-active state */
+        .dropzone-active {
+            border-color: #0d9488 !important;
+            background-color: #f0fdfa !important;
+        }
+    </style>
 </head>
 
-<body class="p-4 max-w-md mx-auto bg-gray-50">
-    <h1 class="text-3xl font-bold mb-4">Puriyum</h1>
+<body class="bg-stone-50 text-stone-800">
 
-    <input type="file" id="file" class="mb-4 block w-full p-2 border" accept="image/*">
+    <!-- Skip to content -->
+    <a href="#tool" class="skip-link">Skip to document tool</a>
 
-    <select id="lang" class="mb-4 block w-full p-2 border text-lg">
-        <option value="Tamil">Tamil</option>
-        <option value="English">English</option>
-        <option value="Hindi">Hindi</option>
-    </select>
+    <!-- ───────── Nav ───────── -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-stone-200/60"
+        aria-label="Main navigation">
+        <div class="max-w-5xl mx-auto px-4 flex items-center justify-between h-[60px]">
+            <a href="#" class="font-extrabold text-brand-700 flex items-center gap-1.5" aria-label="Puriyum home">
+                <span class="text-2xl leading-none">புரியும்</span>
+                <span class="text-sm font-medium text-stone-400 hidden sm:inline">Puriyum</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="#how"
+                    class="hidden sm:inline text-sm font-medium text-stone-500 hover:text-brand-700 transition-colors">How
+                    it works</a>
+                <a href="#compare"
+                    class="hidden sm:inline text-sm font-medium text-stone-500 hover:text-brand-700 transition-colors">Compare</a>
+                <a href="#tool"
+                    class="bg-brand-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-brand-700 transition-colors min-h-[44px] flex items-center">
+                    Try now
+                </a>
+            </div>
+        </div>
+    </nav>
 
-    <button onclick="runApp()" class="bg-blue-600 text-white p-4 rounded w-full font-bold text-xl">Explain</button>
+    <!-- ───────── Hero ───────── -->
+    <section class="relative overflow-hidden bg-gradient-to-br from-brand-50 via-white to-sky-50 py-16 sm:py-24 px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-stone-900 leading-tight mb-5">
+                Confusing paper?<br>
+                <span class="text-brand-600">Puriyum explains it.</span>
+            </h1>
+            <p class="text-stone-500 text-lg mb-10 max-w-xl mx-auto">
+                Take a photo of any bill, notice, or medical report. Get a simple explanation in your language — with
+                action steps and voice readout.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="#tool"
+                    class="inline-flex items-center justify-center px-8 py-4 bg-brand-600 text-white font-bold rounded-2xl text-lg hover:bg-brand-700 shadow-lg shadow-brand-600/20 transition-all active:scale-[0.97] min-h-[52px]">
+                    Try now
+                </a>
+                <button onclick="showSamplePicker()"
+                    class="inline-flex items-center justify-center px-8 py-4 bg-white text-brand-700 font-semibold rounded-2xl text-lg border-2 border-brand-200 hover:bg-brand-50 transition-all active:scale-[0.97] min-h-[52px]"
+                    aria-label="Try a sample document without uploading">
+                    Try sample document
+                </button>
+            </div>
+        </div>
+    </section>
 
-    <audio id="audio" controls class="mt-6 hidden w-full"></audio>
-    <div id="out" class="mt-6 text-lg space-y-4"></div>
+    <!-- ───────── Tool ───────── -->
+    <section id="tool" class="py-12 px-4" aria-label="Document explanation tool">
+        <div class="max-w-lg mx-auto space-y-5">
+            <h2 class="text-2xl font-bold text-stone-900 text-center">Upload your document</h2>
 
+            <!-- Drop zone -->
+            <div id="dropzone"
+                class="relative border-2 border-dashed border-stone-300 rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-brand-400 hover:bg-brand-50/50 min-h-[180px] flex items-center justify-center">
+                <input type="file" id="file-input" accept="image/*" capture="environment"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    aria-label="Take photo or choose document image">
+                <div id="dropzone-content" class="space-y-2">
+                    <div class="text-5xl" aria-hidden="true">📸</div>
+                    <p class="font-semibold text-stone-600">Tap to take photo or choose file</p>
+                    <p class="text-sm text-stone-400">JPG, PNG supported</p>
+                </div>
+                <div id="preview-content" class="hidden space-y-2 w-full">
+                    <img id="preview-image" class="max-h-52 mx-auto rounded-xl shadow-sm"
+                        alt="Preview of uploaded document">
+                    <button type="button" onclick="event.stopPropagation(); clearFile()"
+                        class="relative z-20 text-sm text-brand-600 underline font-semibold hover:text-brand-800 min-h-[44px] px-3"
+                        aria-label="Remove photo and choose a different one">
+                        Change photo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language -->
+            <div>
+                <label for="lang-select" class="block font-semibold text-stone-700 mb-1.5 text-base">Language</label>
+                <select id="lang-select"
+                    class="w-full p-3.5 rounded-xl border-2 border-stone-200 bg-white text-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-colors min-h-[52px]"
+                    aria-label="Select explanation language">
+                    <option value="Tamil">தமிழ் (Tamil)</option>
+                    <option value="English">English</option>
+                    <option value="Hindi">हिन्दी (Hindi)</option>
+                </select>
+            </div>
+
+            <!-- Explain button -->
+            <button id="explain-btn" onclick="explain()" disabled
+                class="w-full p-4 rounded-2xl bg-brand-600 text-white font-bold text-xl shadow-lg shadow-brand-600/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none transition-all hover:bg-brand-700 hover:shadow-xl active:scale-[0.97] min-h-[56px]"
+                aria-label="Explain this document">
+                Explain this document
+            </button>
+
+            <!-- Sample picker -->
+            <div id="sample-picker" class="hidden space-y-3" role="region" aria-label="Sample documents">
+                <p class="text-center text-stone-400 font-medium text-base">Or try a sample:</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="loadSample('bill')"
+                        class="p-4 rounded-xl border-2 border-stone-200 bg-white text-center hover:border-brand-400 hover:bg-brand-50 transition-all min-h-[52px]"
+                        aria-label="Try sample electricity bill">
+                        <div class="text-3xl mb-1" aria-hidden="true">💡</div>
+                        <p class="font-semibold text-stone-700 text-sm">Electricity Bill</p>
+                        <p class="text-xs text-stone-400">TNEB</p>
+                    </button>
+                    <button onclick="loadSample('medical')"
+                        class="p-4 rounded-xl border-2 border-stone-200 bg-white text-center hover:border-brand-400 hover:bg-brand-50 transition-all min-h-[52px]"
+                        aria-label="Try sample medical report">
+                        <div class="text-3xl mb-1" aria-hidden="true">🏥</div>
+                        <p class="font-semibold text-stone-700 text-sm">Medical Report</p>
+                        <p class="text-xs text-stone-400">Blood Test</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status area -->
+            <div id="status-area" class="hidden" aria-live="polite" role="status"></div>
+
+            <!-- Result area -->
+            <div id="result-area" class="hidden" aria-live="polite" role="region"
+                aria-label="Document explanation result"></div>
+        </div>
+    </section>
+
+    <!-- ───────── Compare ───────── -->
+    <section id="compare" class="py-16 px-4 bg-stone-100/60">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 text-center mb-3">Why Puriyum?</h2>
+            <p class="text-center text-stone-400 text-base mb-10 max-w-lg mx-auto">See the difference between a
+                generic chatbot and a purpose-built tool for real people.</p>
+
+            <div class="grid md:grid-cols-2 gap-6 items-start">
+                <!-- Generic chatbot -->
+                <div class="bg-stone-200/70 rounded-2xl p-6 space-y-3">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-3 h-3 bg-stone-400 rounded-full" aria-hidden="true"></span>
+                        <span class="font-bold text-stone-400 text-xs uppercase tracking-widest">Generic Chatbot</span>
+                    </div>
+                    <p class="text-stone-500 text-sm leading-relaxed">
+                        Based on my analysis of the uploaded image, this appears to be a Tamil Nadu Electricity Board
+                        (TNEB) electricity bill or payment receipt. The document indicates that a total amount of Rs.
+                        850 is due for the current billing cycle. The payment due date appears to be November 5, 2026.
+                        According to the terms mentioned in the document, failure to make payment by the specified due
+                        date may result in disconnection of the electricity supply to your premises. I recommend making
+                        the payment as soon as possible to avoid any service interruption. You may pay through various
+                        channels including the TNEB website, authorized payment centers, or the TNEB mobile application.
+                        For customer support or billing inquiries, you can reach TNEB customer care at 1912. Please note
+                        that late payment may incur additional surcharges as per the regulatory guidelines set forth by
+                        the Tamil Nadu Electricity Regulatory Commission.
+                    </p>
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <span class="text-xs bg-stone-300/80 text-stone-600 px-2 py-1 rounded-md">English only</span>
+                        <span class="text-xs bg-stone-300/80 text-stone-600 px-2 py-1 rounded-md">Dense text</span>
+                        <span class="text-xs bg-stone-300/80 text-stone-600 px-2 py-1 rounded-md">No structure</span>
+                    </div>
+                </div>
+
+                <!-- Puriyum -->
+                <div class="bg-white rounded-2xl shadow-lg border border-stone-200 overflow-hidden">
+                    <div class="flex items-center gap-2 px-5 py-3 border-b border-stone-100">
+                        <span class="w-3 h-3 bg-brand-500 rounded-full" aria-hidden="true"></span>
+                        <span class="font-bold text-brand-700 text-xs uppercase tracking-widest">Puriyum</span>
+                    </div>
+
+                    <!-- Urgency badge -->
+                    <div
+                        class="mx-4 mt-4 px-4 py-2.5 bg-red-100 text-red-800 rounded-xl flex items-center justify-between text-sm font-extrabold">
+                        <span>🔴 Urgent</span>
+                        <span class="font-bold">📅 2026-11-05</span>
+                    </div>
+
+                    <div class="p-5 space-y-3">
+                        <h3 class="font-bold text-stone-900 text-lg">TNEB மின்சாரக் கட்டணம்</h3>
+                        <p class="text-stone-600 text-sm">இது TNEB மின்சாரக் கட்டண ரசீது. மின் இணைப்பு
+                            துண்டிக்கப்படாமல் இருக்க நீங்கள் Rs 850 செலுத்த வேண்டும்.</p>
+
+                        <div class="flex items-start gap-2.5">
+                            <span
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs"
+                                aria-hidden="true">1</span>
+                            <div>
+                                <p class="font-medium text-stone-800 text-sm">Rs 850 மின் கட்டணத்தை செலுத்துங்கள்.</p>
+                                <p class="text-xs text-stone-400 mt-0.5">📅 2026-11-05 தேதிக்குள்</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-sm text-red-700 flex gap-2">
+                            <span aria-hidden="true">⚠️</span>
+                            <span>பணம் கட்டவில்லை என்றால் மின் இணைப்பு துண்டிக்கப்படும்</span>
+                        </div>
+
+                        <div class="bg-stone-50 rounded-xl p-3 text-sm flex items-center gap-2.5">
+                            <span aria-hidden="true">📞</span>
+                            <span class="font-medium">TNEB:</span>
+                            <span class="text-brand-600 font-semibold">1912</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 px-5 pb-4">
+                        <span class="text-xs bg-brand-100 text-brand-700 px-2.5 py-1 rounded-md font-medium">Your
+                            language</span>
+                        <span
+                            class="text-xs bg-brand-100 text-brand-700 px-2.5 py-1 rounded-md font-medium">Structured</span>
+                        <span
+                            class="text-xs bg-brand-100 text-brand-700 px-2.5 py-1 rounded-md font-medium">Actionable</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────── How it works ───────── -->
+    <section id="how" class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 text-center mb-12">How it works</h2>
+            <div class="grid sm:grid-cols-3 gap-10">
+                <div class="text-center space-y-4">
+                    <div class="w-20 h-20 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto text-4xl"
+                        aria-hidden="true">📸</div>
+                    <h3 class="font-bold text-stone-900 text-xl">Snap</h3>
+                    <p class="text-stone-500 text-base">Take a photo of your bill, notice, or medical report.</p>
+                </div>
+                <div class="text-center space-y-4">
+                    <div class="w-20 h-20 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto text-4xl"
+                        aria-hidden="true">📖</div>
+                    <h3 class="font-bold text-stone-900 text-xl">Understand</h3>
+                    <p class="text-stone-500 text-base">Get a clear explanation in Tamil, Hindi, or English.</p>
+                </div>
+                <div class="text-center space-y-4">
+                    <div class="w-20 h-20 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto text-4xl"
+                        aria-hidden="true">🔊</div>
+                    <h3 class="font-bold text-stone-900 text-xl">Listen</h3>
+                    <p class="text-stone-500 text-base">Hear the explanation read aloud to you.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────── Responsible AI ───────── -->
+    <section class="py-12 px-4 bg-stone-800 text-white" aria-label="Responsible AI commitments">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-xl font-bold text-center mb-8">Responsible AI</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+                <div class="text-center space-y-2">
+                    <div class="text-3xl" aria-hidden="true">🔒</div>
+                    <p class="text-sm text-stone-300 leading-snug">Not stored, deleted after processing</p>
+                </div>
+                <div class="text-center space-y-2">
+                    <div class="text-3xl" aria-hidden="true">⚖️</div>
+                    <p class="text-sm text-stone-300 leading-snug">Explains only, no legal or medical advice</p>
+                </div>
+                <div class="text-center space-y-2">
+                    <div class="text-3xl" aria-hidden="true">📸</div>
+                    <p class="text-sm text-stone-300 leading-snug">Says "retake photo" instead of guessing</p>
+                </div>
+                <div class="text-center space-y-2">
+                    <div class="text-3xl" aria-hidden="true">✅</div>
+                    <p class="text-sm text-stone-300 leading-snug">Verify with the official office</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────── Footer ───────── -->
+    <footer class="py-8 px-4 bg-stone-900 text-stone-400 text-center text-sm">
+        <p>Built with ❤️ by <span class="text-white font-semibold">CrazyCoders</span></p>
+        <p class="mt-1">Hackathon 2026</p>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- JS                                          -->
+    <!-- ═══════════════════════════════════════════ -->
     <script>
-        async function runApp() {
-            const out = document.getElementById("out");
-            const audio = document.getElementById("audio");
-            const lang = document.getElementById("lang").value;
+        /* ── State ── */
+        let selectedFile = null;
+        let currentResult = null;
+        let currentAudio = null;
+        let isSampleMode = false;
+        let sampleAudioUrl = null;
 
-            out.innerHTML = "<p>Reading document...</p>";
-            audio.classList.add("hidden");
+        const LANG_TTS = { Tamil: 'ta', Hindi: 'hi', English: 'en' };
 
-            const fd = new FormData();
-            fd.append("file", document.getElementById("file").files[0]);
-            fd.append("lang", lang);
+        /* ── UI labels per language ── */
+        const L = {
+            Tamil: {
+                whatToDo: 'செய்ய வேண்டியவை',
+                warning: 'எச்சரிக்கை',
+                listen: 'கேளுங்கள்',
+                stop: 'நிறுத்து',
+                loadingVoice: 'குரல் தயாராகிறது…',
+                voiceUnavailable: 'குரல் கிடைக்கவில்லை',
+                disclaimer: 'AI விளக்கம். உத்தியோகபூர்வ அலுவலகத்தில் சரிபார்க்கவும். சட்ட அல்லது மருத்துவ ஆலோசனை அல்ல.',
+            },
+            Hindi: {
+                whatToDo: 'क्या करना है',
+                warning: 'चेतावनी',
+                listen: 'सुनें',
+                stop: 'रोकें',
+                loadingVoice: 'आवाज़ तैयार हो रही है…',
+                voiceUnavailable: 'आवाज़ उपलब्ध नहीं',
+                disclaimer: 'AI व्याख्या। आधिकारिक कार्यालय से सत्यापित करें। कानूनी या चिकित्सा सलाह नहीं।',
+            },
+            English: {
+                whatToDo: 'What to do',
+                warning: 'Warning',
+                listen: 'Listen',
+                stop: 'Stop',
+                loadingVoice: 'Loading voice…',
+                voiceUnavailable: 'Voice unavailable',
+                disclaimer: 'AI explanation. Verify with the official office. Not legal or medical advice.',
+            },
+        };
 
-            const res = await fetch("/api/explain", { method: "POST", body: fd });
-            const data = await res.json();
+        /* ── Helpers ── */
+        function escapeHtml(str) {
+            if (!str) return '';
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
 
-            if (!data.readable) {
-                out.innerHTML = `<div class="bg-red-100 p-4 rounded font-bold text-red-700">Error: ${data.retake_reason}</div>`;
+        function getLang() {
+            return document.getElementById('lang-select').value;
+        }
+
+        function label(key) {
+            return (L[getLang()] || L.English)[key] || L.English[key];
+        }
+
+        /* ── Image compression ── */
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+                    const MAX = 1600;
+                    if (width > MAX || height > MAX) {
+                        if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
+                        else { width = Math.round(width * MAX / height); height = MAX; }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Compression failed')), 'image/jpeg', 0.85);
+                };
+                img.onerror = () => reject(new Error('Could not read image'));
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        /* ── File handling ── */
+        function handleFileSelect(file) {
+            selectedFile = file;
+            isSampleMode = false;
+            sampleAudioUrl = null;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('preview-image').src = e.target.result;
+                document.getElementById('dropzone-content').classList.add('hidden');
+                document.getElementById('preview-content').classList.remove('hidden');
+                document.getElementById('explain-btn').disabled = false;
+            };
+            reader.readAsDataURL(file);
+
+            // Hide previous results
+            document.getElementById('status-area').classList.add('hidden');
+            document.getElementById('result-area').classList.add('hidden');
+        }
+
+        function clearFile() {
+            selectedFile = null;
+            const inp = document.getElementById('file-input');
+            inp.value = '';
+            document.getElementById('dropzone-content').classList.remove('hidden');
+            document.getElementById('preview-content').classList.add('hidden');
+            document.getElementById('explain-btn').disabled = true;
+            document.getElementById('status-area').classList.add('hidden');
+            document.getElementById('result-area').classList.add('hidden');
+            stopAudio();
+        }
+
+        /* ── Explain (main API call) ── */
+        async function explain() {
+            if (!selectedFile) return;
+
+            const btn = document.getElementById('explain-btn');
+            const statusArea = document.getElementById('status-area');
+            const resultArea = document.getElementById('result-area');
+
+            resultArea.classList.add('hidden');
+            resultArea.innerHTML = '';
+            statusArea.classList.remove('hidden');
+            statusArea.innerHTML = `
+                <div class="flex items-center justify-center gap-3 p-6">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <span class="text-stone-500 font-medium">Reading your document…</span>
+                </div>`;
+            btn.disabled = true;
+            isSampleMode = false;
+            sampleAudioUrl = null;
+            stopAudio();
+
+            try {
+                const compressed = await compressImage(selectedFile);
+                const fd = new FormData();
+                fd.append('file', compressed, 'document.jpg');
+                fd.append('lang', getLang());
+
+                const res = await fetch('/api/explain', { method: 'POST', body: fd });
+
+                if (res.status === 503) { showBusy(); btn.disabled = false; return; }
+
+                const data = await res.json();
+
+                if (data.error === 'busy') { showBusy(); btn.disabled = false; return; }
+                if (data.readable === false) { showRetake(data.retake_reason || 'Image not clear enough'); btn.disabled = false; return; }
+
+                statusArea.classList.add('hidden');
+                renderResult(data);
+                btn.disabled = false;
+
+            } catch (e) {
+                statusArea.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-700">
+                        <p class="font-bold text-lg">Something went wrong</p>
+                        <p class="text-sm mt-1">${escapeHtml(e.message)}</p>
+                    </div>`;
+                btn.disabled = false;
+            }
+        }
+
+        /* ── Status helpers ── */
+        function showBusy() {
+            const s = document.getElementById('status-area');
+            s.classList.remove('hidden');
+            s.innerHTML = `
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+                    <p class="font-bold text-amber-800 text-lg">⏳ Service is busy</p>
+                    <p class="text-amber-700 mt-1 text-base">Try again in a minute, or use a sample document.</p>
+                    <button onclick="showSamplePicker()"
+                        class="mt-3 px-5 py-2.5 bg-amber-100 text-amber-800 rounded-xl font-semibold hover:bg-amber-200 transition-colors min-h-[44px]">
+                        Try sample document
+                    </button>
+                </div>`;
+        }
+
+        function showRetake(reason) {
+            const s = document.getElementById('status-area');
+            s.classList.remove('hidden');
+            s.innerHTML = `
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+                    <p class="font-bold text-amber-800 text-lg">📸 Please retake the photo</p>
+                    <p class="text-amber-700 mt-1 text-base">${escapeHtml(reason)}</p>
+                    <button onclick="clearFile()"
+                        class="mt-3 px-5 py-2.5 bg-amber-100 text-amber-800 rounded-xl font-semibold hover:bg-amber-200 transition-colors min-h-[44px]">
+                        Retake photo
+                    </button>
+                </div>`;
+        }
+
+        /* ── Render result card ── */
+        function renderResult(data) {
+            const lang = getLang();
+            const ttsLang = LANG_TTS[lang] || 'en';
+            const resultArea = document.getElementById('result-area');
+            resultArea.setAttribute('lang', ttsLang);
+            currentResult = data;
+
+            // Urgency
+            let uBg, uText, uIcon;
+            switch (data.urgency) {
+                case 'high': uBg = 'bg-red-100 border-red-200'; uText = 'text-red-800'; uIcon = '🔴 Urgent'; break;
+                case 'medium': uBg = 'bg-amber-100 border-amber-200'; uText = 'text-amber-800'; uIcon = '🟡 Soon'; break;
+                default: uBg = 'bg-emerald-100 border-emerald-200'; uText = 'text-emerald-800'; uIcon = '🟢 For information';
+            }
+
+            // Actions
+            const actionsHtml = (data.actions || []).map((a, i) => `
+                <li class="flex gap-3 items-start">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">${i + 1}</span>
+                    <div>
+                        <p class="font-medium text-stone-800">${escapeHtml(a.step)}</p>
+                        ${a.by_when ? `<p class="text-sm text-stone-400 mt-0.5">📅 ${escapeHtml(a.by_when)}</p>` : ''}
+                    </div>
+                </li>`).join('');
+
+            // Risk flags
+            const hasRisks = data.risk_flags && data.risk_flags.length > 0;
+            const riskHtml = hasRisks ? `
+                <div class="bg-red-50 border border-red-100 rounded-xl p-4">
+                    <p class="font-bold text-red-800 mb-2">⚠️ ${escapeHtml(label('warning'))}</p>
+                    <ul class="space-y-1.5">
+                        ${data.risk_flags.map(f => `
+                            <li class="text-red-700 flex gap-2 text-base">
+                                <span aria-hidden="true">•</span><span>${escapeHtml(f)}</span>
+                            </li>`).join('')}
+                    </ul>
+                </div>` : '';
+
+            // Contact
+            const c = data.contact || {};
+            const hasContact = c.name || c.phone || c.address;
+            const contactHtml = hasContact ? `
+                <div class="bg-stone-50 rounded-xl p-4 flex items-center gap-3">
+                    <span class="text-2xl" aria-hidden="true">📞</span>
+                    <div>
+                        ${c.name ? `<p class="font-semibold text-stone-800">${escapeHtml(c.name)}</p>` : ''}
+                        ${c.phone ? `<p><a href="tel:${escapeHtml(c.phone)}" class="text-brand-600 underline font-semibold hover:text-brand-800">${escapeHtml(c.phone)} — Call</a></p>` : ''}
+                        ${c.address ? `<p class="text-sm text-stone-500 mt-0.5">${escapeHtml(c.address)}</p>` : ''}
+                    </div>
+                </div>` : '';
+
+            resultArea.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-lg border border-stone-200 overflow-hidden result-enter">
+                    <!-- Urgency banner -->
+                    <div class="p-4 ${uBg} ${uText} border-b flex items-center justify-between">
+                        <span class="font-extrabold text-lg">${uIcon}</span>
+                        ${data.deadline ? `<span class="font-bold text-base">📅 ${escapeHtml(data.deadline)}</span>` : ''}
+                    </div>
+
+                    <div class="p-5 sm:p-6 space-y-5">
+                        <h3 class="text-2xl font-bold text-stone-900">${escapeHtml(data.doc_type)}</h3>
+                        <p class="text-stone-600 leading-relaxed">${escapeHtml(data.summary)}</p>
+
+                        <!-- Actions -->
+                        ${(data.actions && data.actions.length) ? `
+                        <div>
+                            <h4 class="font-bold text-stone-700 mb-3">${escapeHtml(label('whatToDo'))}</h4>
+                            <ol class="space-y-3">${actionsHtml}</ol>
+                        </div>` : ''}
+
+                        ${riskHtml}
+                        ${contactHtml}
+
+                        <!-- Listen -->
+                        <button id="listen-btn" onclick="listen()"
+                            class="w-full p-4 rounded-xl bg-brand-100 text-brand-700 font-bold text-lg flex items-center justify-center gap-2 hover:bg-brand-200 active:scale-[0.97] transition-all min-h-[52px]"
+                            aria-label="${label('listen')} — hear explanation read aloud">
+                            🔊 ${escapeHtml(label('listen'))}
+                        </button>
+
+                        <!-- Disclaimer + confidence -->
+                        <p class="text-xs text-stone-400 text-center leading-snug">
+                            ${escapeHtml(label('disclaimer'))}<br>
+                            Confidence: ${Math.round((data.confidence || 0) * 100)}%
+                        </p>
+                    </div>
+                </div>`;
+
+            resultArea.classList.remove('hidden');
+        }
+
+        /* ── Listen / TTS ── */
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+            const btn = document.getElementById('listen-btn');
+            if (btn) btn.innerHTML = `🔊 ${escapeHtml(label('listen'))}`;
+        }
+
+        async function listen() {
+            const btn = document.getElementById('listen-btn');
+            if (!btn || !currentResult) return;
+
+            // Toggle off if playing
+            if (currentAudio && !currentAudio.paused) {
+                stopAudio();
                 return;
             }
 
-            let urgencyColor = data.urgency === "high" ? "bg-red-100" : (data.urgency === "medium" ? "bg-yellow-100" : "bg-green-100");
+            btn.innerHTML = `⏳ ${escapeHtml(label('loadingVoice'))}`;
+            btn.disabled = true;
 
-            const htmlContent = `
-                <div class="p-4 rounded ${urgencyColor}">
-                    <p class="font-bold text-2xl mb-2">${data.doc_type}</p>
-                    <p class="mb-4">${data.summary}</p>
-                    <p class="font-bold">Deadline: ${data.deadline || "None"}</p>
-                </div>
-                <div class="bg-white p-4 rounded border">
-                    <p class="font-bold mb-2">Actions:</p>
-                    <ul class="list-disc pl-5">
-                        ${data.actions.map(a => `<li>${a.step} <br><span class="text-sm text-gray-600">By: ${a.by_when || "N/A"}</span></li>`).join("")}
-                    </ul>
-                </div>
-                <p id="tts-status" class="mt-4 font-bold text-blue-600">Generating voice...</p>
-            `;
+            try {
+                let audioUrl;
 
-            out.innerHTML = htmlContent;
+                if (isSampleMode && sampleAudioUrl) {
+                    // Check if sample mp3 exists
+                    const probe = await fetch(sampleAudioUrl, { method: 'HEAD' });
+                    if (probe.ok) {
+                        audioUrl = sampleAudioUrl;
+                    } else {
+                        throw new Error('Sample audio not found, falling back to TTS');
+                    }
+                }
 
-            const ttsLang = lang === "Tamil" ? "ta" : (lang === "Hindi" ? "hi" : "en");
-            const ttsFd = new FormData();
-            ttsFd.append("text", data.summary);
-            ttsFd.append("lang", ttsLang);
+                if (!audioUrl) {
+                    // Call /api/tts
+                    const text = currentResult.summary + '. ' + (currentResult.actions || []).map(a => a.step).join('. ');
+                    const ttsLang = LANG_TTS[getLang()] || 'en';
 
-            const ttsRes = await fetch("/api/tts", { method: "POST", body: ttsFd });
-            const blob = await ttsRes.blob();
+                    const fd = new FormData();
+                    fd.append('text', text);
+                    fd.append('lang', ttsLang);
 
-            audio.src = URL.createObjectURL(blob);
-            audio.classList.remove("hidden");
-            audio.play();
+                    const res = await fetch('/api/tts', { method: 'POST', body: fd });
+                    if (!res.ok) throw new Error('TTS request failed');
 
-            document.getElementById("tts-status").innerText = "Voice ready.";
+                    const blob = await res.blob();
+                    audioUrl = URL.createObjectURL(blob);
+                }
+
+                currentAudio = new Audio(audioUrl);
+
+                currentAudio.addEventListener('playing', () => {
+                    btn.disabled = false;
+                    btn.innerHTML = `⏹️ ${escapeHtml(label('stop'))}`;
+                });
+                currentAudio.addEventListener('ended', () => {
+                    btn.innerHTML = `🔊 ${escapeHtml(label('listen'))}`;
+                    currentAudio = null;
+                });
+                currentAudio.addEventListener('error', () => {
+                    btn.disabled = false;
+                    btn.innerHTML = `🔊 ${escapeHtml(label('voiceUnavailable'))}`;
+                    currentAudio = null;
+                });
+
+                await currentAudio.play();
+
+            } catch (e) {
+                btn.disabled = false;
+                btn.innerHTML = `🔊 ${escapeHtml(label('voiceUnavailable'))}`;
+                currentAudio = null;
+            }
         }
+
+        /* ── Sample mode ── */
+        function showSamplePicker() {
+            document.getElementById('tool').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('sample-picker').classList.remove('hidden');
+        }
+
+        async function loadSample(type) {
+            const statusArea = document.getElementById('status-area');
+            const resultArea = document.getElementById('result-area');
+            const picker = document.getElementById('sample-picker');
+
+            resultArea.classList.add('hidden');
+            resultArea.innerHTML = '';
+            statusArea.classList.remove('hidden');
+            statusArea.innerHTML = `
+                <div class="flex items-center justify-center gap-3 p-6">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <span class="text-stone-500 font-medium">Loading sample…</span>
+                </div>`;
+            picker.classList.add('hidden');
+            stopAudio();
+
+            try {
+                const jsonRes = await fetch(`/samples/${type}_ta.json`);
+                if (!jsonRes.ok) throw new Error('Sample data not found');
+                const data = await jsonRes.json();
+
+                // Try to show sample image
+                try {
+                    const imgCheck = await fetch(`/samples/${type}.png`, { method: 'HEAD' });
+                    if (imgCheck.ok) {
+                        document.getElementById('preview-image').src = `/samples/${type}.png`;
+                        document.getElementById('dropzone-content').classList.add('hidden');
+                        document.getElementById('preview-content').classList.remove('hidden');
+                    }
+                } catch (_) { /* image is optional */ }
+
+                isSampleMode = true;
+                sampleAudioUrl = `/samples/${type}_ta.mp3`;
+                selectedFile = null;
+
+                // Set language to Tamil for samples
+                document.getElementById('lang-select').value = 'Tamil';
+                document.getElementById('explain-btn').disabled = true;
+
+                statusArea.classList.add('hidden');
+                renderResult(data);
+
+            } catch (e) {
+                statusArea.innerHTML = `
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-amber-700">
+                        <p class="font-bold text-lg">Sample not available</p>
+                        <p class="text-base mt-1">Please try uploading your own document.</p>
+                    </div>`;
+            }
+        }
+
+        /* ── Event listeners ── */
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('file-input');
+            const dropzone = document.getElementById('dropzone');
+
+            fileInput.addEventListener('change', e => {
+                if (e.target.files && e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+
+            // Drag & drop
+            dropzone.addEventListener('dragover', e => {
+                e.preventDefault();
+                dropzone.classList.add('dropzone-active');
+            });
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('dropzone-active');
+            });
+            dropzone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropzone.classList.remove('dropzone-active');
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+        });
     </script>
+
 </body>
 
-</html> -->
+</html>
