@@ -1,0 +1,82 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Puriyum MVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="p-4 max-w-md mx-auto bg-gray-50">
+    <h1 class="text-3xl font-bold mb-4">Puriyum</h1>
+
+    <input type="file" id="file" class="mb-4 block w-full p-2 border" accept="image/*">
+
+    <select id="lang" class="mb-4 block w-full p-2 border text-lg">
+        <option value="Tamil">Tamil</option>
+        <option value="English">English</option>
+        <option value="Hindi">Hindi</option>
+    </select>
+
+    <button onclick="runApp()" class="bg-blue-600 text-white p-4 rounded w-full font-bold text-xl">Explain</button>
+
+    <audio id="audio" controls class="mt-6 hidden w-full"></audio>
+    <div id="out" class="mt-6 text-lg space-y-4"></div>
+
+    <script>
+        async function runApp() {
+            const out = document.getElementById("out");
+            const audio = document.getElementById("audio");
+            const lang = document.getElementById("lang").value;
+
+            out.innerHTML = "<p>Reading document...</p>";
+            audio.classList.add("hidden");
+
+            const fd = new FormData();
+            fd.append("file", document.getElementById("file").files[0]);
+            fd.append("lang", lang);
+
+            const res = await fetch("/api/explain", { method: "POST", body: fd });
+            const data = await res.json();
+
+            if (!data.readable) {
+                out.innerHTML = `<div class="bg-red-100 p-4 rounded font-bold text-red-700">Error: ${data.retake_reason}</div>`;
+                return;
+            }
+
+            let urgencyColor = data.urgency === "high" ? "bg-red-100" : (data.urgency === "medium" ? "bg-yellow-100" : "bg-green-100");
+
+            const htmlContent = `
+                <div class="p-4 rounded ${urgencyColor}">
+                    <p class="font-bold text-2xl mb-2">${data.doc_type}</p>
+                    <p class="mb-4">${data.summary}</p>
+                    <p class="font-bold">Deadline: ${data.deadline || "None"}</p>
+                </div>
+                <div class="bg-white p-4 rounded border">
+                    <p class="font-bold mb-2">Actions:</p>
+                    <ul class="list-disc pl-5">
+                        ${data.actions.map(a => `<li>${a.step} <br><span class="text-sm text-gray-600">By: ${a.by_when || "N/A"}</span></li>`).join("")}
+                    </ul>
+                </div>
+                <p id="tts-status" class="mt-4 font-bold text-blue-600">Generating voice...</p>
+            `;
+
+            out.innerHTML = htmlContent;
+
+            const ttsLang = lang === "Tamil" ? "ta" : (lang === "Hindi" ? "hi" : "en");
+            const ttsFd = new FormData();
+            ttsFd.append("text", data.summary);
+            ttsFd.append("lang", ttsLang);
+
+            const ttsRes = await fetch("/api/tts", { method: "POST", body: ttsFd });
+            const blob = await ttsRes.blob();
+
+            audio.src = URL.createObjectURL(blob);
+            audio.classList.remove("hidden");
+            audio.play();
+
+            document.getElementById("tts-status").innerText = "Voice ready.";
+        }
+    </script>
+</body>
+
+</html> -->

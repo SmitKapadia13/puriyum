@@ -1,0 +1,23 @@
+{
+    "readable": true,
+    "confidence": 0.95,
+    "doc_type": "மருத்துவ இரத்தப் பரிசோதனை அறிக்கை",
+    "summary": "இது Smit என்பவரின் இரத்தப் பரிசோதனை அறிக்கை ஆகும். இதில் இரத்த சர்க்கரை அளவு அதிகமாகக் குறிப்பிடப்பட்டுள்ளது.",
+    "actions": [
+        {
+            "step": "இந்த அறிக்கையை உங்கள் மருத்துவரிடம் காட்டுங்கள்.",
+            "by_when": "உடனடியாக"
+        }
+    ],
+    "deadline": null,
+    "urgency": "high",
+    "risk_flags": [
+        "சர்க்கரை அளவு 240 mg/dL அதிகமாக (High) உள்ளது."
+    ],
+    "contact": {
+        "name": "City Hospital",
+        "phone": null,
+        "address": null
+    },
+    "retake_reason": null
+}
